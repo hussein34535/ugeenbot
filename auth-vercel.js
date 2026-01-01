@@ -26,7 +26,11 @@ class AuthService {
             const page = await browser.newPage();
 
             console.log("🌍 Navigating to signup page...");
-            await page.goto(`${this.baseUri}/signup.html`, { waitUntil: 'networkidle2', timeout: 30000 });
+            await page.goto(`${this.baseUri}/signup.html`, { waitUntil: 'networkidle2', timeout: 60000 });
+
+            console.log("⏳ Waiting for form...");
+            // ننتظر ظهور حقل الاسم للتأكد من تحميل النموذج بالكامل
+            await page.waitForSelector('#name', { visible: true, timeout: 60000 });
 
             console.log("✍️ Filling form...");
             await page.type('#name', username);
