@@ -11,9 +11,9 @@ const subService = new SubscriptionService(baseUri, authService);
 
 module.exports = async (request, response) => {
     try {
-        const { body } = request;
+        const body = request.body;
 
-        if (body.message) {
+        if (body && body.message) {
             const chatId = body.message.chat.id;
             const text = body.message.text;
 
