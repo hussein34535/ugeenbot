@@ -53,13 +53,25 @@ class AuthService {
             await page.type('#password', password);
 
             console.log("🖱️ Clicking Signup...");
-            await Promise.all([
-                page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 20000 }),
-                page.click('#submit')
-            ]);
 
-            console.log("✅ Registration Successful");
-            return { success: true };
+            // Click first
+            await page.click('#submit');
+
+            // Wait for URL to change to signin.html (Result of successful registration)
+            // or timeout after 60s
+            try {
+                await page.waitForFunction(() => window.location.href.includes('signin.html'), { timeout: 60000 });
+                console.log("✅ Registration Successful (Redirected to Signin)");
+                return { success: true };
+            } catch (e) {
+                // Double check if we are already there
+                if (page.url().includes('signin.html')) {
+                    console.log("✅ Registration Successful (Redirected to Signin - Timeout Fallback)");
+                    return { success: true };
+                }
+                console.error("❌ Registration Timeout. Current URL:", page.url());
+                throw new Error("Registration timed out. Please try again.");
+            }
 
         } catch (error) {
             console.error("Puppeteer Registration Error:", error.message);
