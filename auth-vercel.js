@@ -25,12 +25,27 @@ class AuthService {
 
             const page = await browser.newPage();
 
+            // Set User Agent to avoid detection
+            await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+
             console.log("🌍 Navigating to signup page...");
-            await page.goto(`${this.baseUri}/signup.html`, { waitUntil: 'networkidle2', timeout: 60000 });
+            // Use networkidle0 to wait for all connections to finish
+            await page.goto(`${this.baseUri}/signup.html`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+
+            const title = await page.title();
+            const url = await page.url();
+            console.log(`📄 Page Loaded: ${title} (${url})`);
 
             console.log("⏳ Waiting for form...");
-            // ننتظر ظهور حقل الاسم للتأكد من تحميل النموذج بالكامل
-            await page.waitForSelector('#name', { visible: true, timeout: 60000 });
+            // Check if we are blocked or on a different page
+            try {
+                await page.waitForSelector('#name', { visible: true, timeout: 30000 });
+            } catch (waitError) {
+                console.error("❌ Selector not found. Dumping page content...");
+                const content = await page.content();
+                console.error("HTML Preview:", content.substring(0, 1000)); // Log first 1000 chars
+                throw waitError;
+            }
 
             console.log("✍️ Filling form...");
             await page.type('#name', username);
