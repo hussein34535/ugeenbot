@@ -4,10 +4,11 @@ const SubscriptionService = require('../subscription');
 
 // إعداد البوت بدون Polling لأن Vercel تعمل بنظام Webhook
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN);
-const baseUri = 'http://176.123.9.60:3000';
+const apiBaseUri = 'http://176.123.9.60:3000';
+const websiteUri = 'http://ugeen.live';
 
-const authService = new AuthService(baseUri);
-const subService = new SubscriptionService(baseUri, authService);
+const authService = new AuthService(websiteUri);
+const subService = new SubscriptionService(apiBaseUri, authService);
 
 module.exports = async (request, response) => {
     try {
